@@ -33,29 +33,14 @@ app.add_middleware(
 ADMIN_WHATSAPP = "918137070424"
 otp_store = {}
 
+import sqlite3
+
 def get_db():
-    """Get database connection with proper error handling"""
-    try:
-        # Get password and handle spaces/special characters
-        password = os.getenv("DB_PASSWORD", "")
-        
-        # Log connection attempt (without password)
-        logger.info(f"Attempting to connect to database: {os.getenv('DB_HOST')}/{os.getenv('DB_NAME')}")
-        
-        # Create connection with timeout and buffering
-        conn = mysql.connector.connect(
-            host=os.getenv("DB_HOST", "localhost"),
-            user=os.getenv("DB_USER", "root"),
-            password=password,
-            database=os.getenv("DB_NAME", "splash_shine"),
-            autocommit=False,
-            connection_timeout=30,
-            buffered=True,
-            use_pure=True  # Use pure Python implementation
-        )
-        
-        logger.info("Database connection successful")
-        return conn
+    """Get SQLite database connection"""
+    conn = sqlite3.connect("splash_shine.db")
+    conn.row_factory = sqlite3.Row  # So you can access columns by name
+    return conn
+   
         
     except Error as e:
         logger.error(f"Database connection error: {e}")
@@ -964,6 +949,3 @@ def check_database():
         if cursor: cursor.close()
         if db: db.close()
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
